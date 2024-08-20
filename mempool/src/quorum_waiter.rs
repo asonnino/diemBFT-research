@@ -93,12 +93,14 @@ impl QuorumWaiter {
                     while let Some(stake) = wait_for_quorum.next().await {
                         total_stake += stake;
                         if total_stake >= self.committee.quorum_threshold() {
-                            self.tx_batch
-                                .send(batch)
-                                .await
-                                .expect("Failed to deliver batch");
                             break;
                         }
+                    }
+                    if total_stake >= self.committee.quorum_threshold() {
+                        self.tx_batch
+                            .send(batch)
+                            .await
+                            .expect("Failed to deliver batch");
                     }
 
                     // Give a bit of extra time to disseminate the batch to slower nodes rather than
